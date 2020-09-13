@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:formulario_bloc/src/models/model.dart';
+import 'package:formulario_bloc/src/providers/productos_provider.dart';
 import 'package:formulario_bloc/src/utils/utils.dart' as utils;
 
 class ProductoPage extends StatefulWidget {
@@ -9,6 +10,7 @@ class ProductoPage extends StatefulWidget {
 
 class _ProductoPageState extends State<ProductoPage> {
   final formKey = GlobalKey<FormState>();
+  final productoProvider = new ProductosProvider();
 
   ProductModel producto = new ProductModel();
 
@@ -112,5 +114,11 @@ class _ProductoPageState extends State<ProductoPage> {
     if (!formKey.currentState.validate()) return;
     //Se ejecuta despues de haber validado el formulario
     formKey.currentState.save();
+
+    print(producto.titulo);
+    print(producto.valor);
+    print(producto.disponible);
+
+    productoProvider.crearProducto(producto);
   }
 }
