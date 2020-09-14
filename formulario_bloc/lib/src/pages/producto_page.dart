@@ -10,14 +10,25 @@ class ProductoPage extends StatefulWidget {
 
 class _ProductoPageState extends State<ProductoPage> {
   final formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
   final productoProvider = new ProductosProvider();
 
   ProductModel producto = new ProductModel();
+  //Cuando se crea el widget no se ha modificado nada
+  //Se usará para evitar que se guarde muchas veces la información
+  bool _guardando = false;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final ProductModel prodData = ModalRoute.of(context).settings.arguments;
+    if (prodData != null) {
+      producto = prodData;
+    }
+
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text('Producto'),
         actions: <Widget>[
@@ -105,7 +116,7 @@ class _ProductoPageState extends State<ProductoPage> {
       ),
       color: Colors.deepPurple,
       textColor: Colors.white,
-      onPressed: _submit,
+      onPressed: (_guardando) ? null : _submit,
       icon: Icon(Icons.save),
     );
   }
@@ -115,10 +126,35 @@ class _ProductoPageState extends State<ProductoPage> {
     //Se ejecuta despues de haber validado el formulario
     formKey.currentState.save();
 
-    print(producto.titulo);
-    print(producto.valor);
-    print(producto.disponible);
+    // print(producto.titulo);
+    // print(producto.valor);
+    // print(producto.disponible);
+    setState(() {
+      _guardando = true;
+    });
 
-    productoProvider.crearProducto(producto);
+    if (producto.id == null)
+      productoProvider.crearProducto(producto);
+    else {
+      productoProvider.editarProducto(producto);
+    }
+    //setState(() {_guardando = false;});
+    mostrarSnackbar('Registro guardado');
+
+    //Al momento de tocar el boton, se regresa a la página principal
+    Navigator.pop(context);
+  }
+
+  void mostrarSnackbar(String mensaje) {
+    final snackbar = SnackBar(
+      content: Text(mensaje),
+      duration: Duration(
+        milliseconds: 1500,
+      ),
+    );
+
+    //Se creó un nuevo key para que el snackbar se activara
+    //con relación al Scaffold
+    scaffoldKey.currentState.showSnackBar(snackbar);
   }
 }
