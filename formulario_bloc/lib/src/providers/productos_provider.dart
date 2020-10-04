@@ -1,8 +1,10 @@
 //Interacciones directas con la base de datos
 import 'dart:convert';
-
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:formulario_bloc/src/models/model.dart';
+import 'package:mime_type/mime_type.dart';
 
 class ProductosProvider {
   //Peticiones HTTP
@@ -60,5 +62,36 @@ class ProductosProvider {
     final resp = await http.delete(url);
     print(json.decode(resp.body));
     return 1;
+  }
+
+  // Subiendo imagen a Cloudinary
+  Future<String> subirImagen(File imagen) async {
+    final url = Uri.parse(
+        'https://api.cloudinary.com/v1_1/dcslliymu/image/upload?upload_preset=bdnovblh');
+
+    //Extraccion
+    final mimeType = mime(imagen.path).split('/');
+    final imageUploadRequest = http.MultipartRequest('POST', url);
+    final file = await http.MultipartFile.fromPath(
+      'file',
+      imagen.path,
+      contentType: MediaType(mimeType[0], mimeType[1]),
+    );
+
+    imageUploadRequest.files.add(file);
+    //Enviando peticion
+    final streamsResponse = await imageUploadRequest.send();
+    //Respuesta recibida del backend
+    final resp = await http.Response.fromStream(streamsResponse);
+
+    if (resp.statusCode != 200 && resp.statusCode != 201) {
+      print("Algo salió mal");
+      print(resp.body);
+      return null;
+    }
+    // Extraer el secure_url
+    final respData = json.decode(resp.body);
+    print(respData);
+    return respData['secure_url'];
   }
 }

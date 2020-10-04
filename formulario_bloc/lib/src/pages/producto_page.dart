@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:formulario_bloc/src/models/model.dart';
 import 'package:formulario_bloc/src/providers/productos_provider.dart';
 import 'package:formulario_bloc/src/utils/utils.dart' as utils;
+import 'package:image_picker/image_picker.dart';
 
 class ProductoPage extends StatefulWidget {
   @override
@@ -13,6 +16,8 @@ class _ProductoPageState extends State<ProductoPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   final productoProvider = new ProductosProvider();
+
+  File foto;
 
   ProductModel producto = new ProductModel();
   //Cuando se crea el widget no se ha modificado nada
@@ -36,13 +41,13 @@ class _ProductoPageState extends State<ProductoPage> {
             icon: Icon(
               Icons.photo_size_select_actual,
             ),
-            onPressed: () {},
+            onPressed: _seleccionarFoto,
           ),
           IconButton(
             icon: Icon(
               Icons.camera_alt,
             ),
-            onPressed: () {},
+            onPressed: _tomarFoto,
           ),
         ],
       ),
@@ -53,6 +58,7 @@ class _ProductoPageState extends State<ProductoPage> {
             key: formKey,
             child: Column(
               children: <Widget>[
+                _mostrarFoto(),
                 _crearNombre(context),
                 _crearPrecio(context),
                 _crearDisponible(context),
@@ -121,7 +127,7 @@ class _ProductoPageState extends State<ProductoPage> {
     );
   }
 
-  void _submit() {
+  void _submit() async {
     if (!formKey.currentState.validate()) return;
     //Se ejecuta despues de haber validado el formulario
     formKey.currentState.save();
@@ -132,6 +138,11 @@ class _ProductoPageState extends State<ProductoPage> {
     setState(() {
       _guardando = true;
     });
+
+    //Subiendo foto al servidor
+    if (foto != null) {
+      producto.fotoUrl = await productoProvider.subirImagen(foto);
+    }
 
     if (producto.id == null)
       productoProvider.crearProducto(producto);
@@ -156,5 +167,46 @@ class _ProductoPageState extends State<ProductoPage> {
     //Se creó un nuevo key para que el snackbar se activara
     //con relación al Scaffold
     scaffoldKey.currentState.showSnackBar(snackbar);
+  }
+
+  Widget _mostrarFoto() {
+    if (producto.fotoUrl != null) {
+      return FadeInImage(
+        placeholder: AssetImage('assets/jar-loading.gif'),
+        image: NetworkImage(producto.fotoUrl),
+        fit: BoxFit.contain,
+      );
+    } else {
+      if (foto != null) {
+        return Image.file(
+          foto,
+          fit: BoxFit.cover,
+          height: 300.0,
+        );
+      }
+      return Image.asset('assets/no-image.png');
+    }
+  }
+
+  Future _seleccionarFoto() async {
+    _procesarImagen(ImageSource.gallery);
+  }
+
+  _tomarFoto() async {
+    _procesarImagen(ImageSource.camera);
+  }
+
+  _procesarImagen(ImageSource origen) async {
+    final _picker = ImagePicker();
+    final pickedFile = await _picker.getImage(
+      source: origen,
+    );
+
+    foto = File(pickedFile.path);
+    if (foto != null) {
+      producto.fotoUrl = null;
+    }
+
+    setState(() {});
   }
 }
