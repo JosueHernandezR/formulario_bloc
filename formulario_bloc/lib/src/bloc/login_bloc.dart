@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:formulario_bloc/src/bloc/validators.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:rxdart/streams.dart';
 import 'package:rxdart/subjects.dart';
 
 class LoginBloc with Validators {

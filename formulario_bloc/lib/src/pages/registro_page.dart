@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:formulario_bloc/src/bloc/provider.dart';
 import 'package:formulario_bloc/src/providers/usuario_provider.dart';
 
-class LoginPage extends StatelessWidget {
+class RegistroPage extends StatelessWidget {
   //const HomePage({Key key}) : super(key: key);
+
   final usuarioProvider = new UsuarioProvider();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +50,7 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Crear cuenta',
+                  'Registro',
                   style: TextStyle(fontSize: 20.0),
                 ),
                 SizedBox(
@@ -67,9 +69,8 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           FlatButton(
-            child: Text('¿Olvidó su contraseña?'),
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, 'registro'),
+            child: Text('¿Ya tienes cuenta?, Login'),
+            onPressed: () => Navigator.pushReplacementNamed(context, 'login'),
           ),
           SizedBox(
             height: size.height * 0.01,
@@ -139,19 +140,20 @@ class LoginPage extends StatelessWidget {
           elevation: 0.0,
           textColor: Colors.white,
           color: Colors.deepPurple,
-          onPressed: snapshot.hasData ? () => _login(bloc, context) : null,
+          onPressed: snapshot.hasData ? () => _register(bloc, context) : null,
         );
       },
     );
   }
 
-  _login(LoginBloc bloc, BuildContext context) {
+  _register(LoginBloc bloc, BuildContext context) {
     // print('=====================');
     // print('Email = ${bloc.email}');
     // print('Email = ${bloc.password}');
     // print('=====================');
-    // Navigator.pushReplacementNamed(context, 'home');
-    usuarioProvider.login(bloc.email, bloc.password);
+
+    usuarioProvider.nuevoUsuario(bloc.email, bloc.password);
+    //Navigator.pushReplacementNamed(context, 'home');
   }
 
   Widget _crearFondo(context) {
