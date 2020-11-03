@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:formulario_bloc/src/preferencias_usuario/preferencias_usuario.dart';
 import 'package:http/http.dart' as http;
 
 class UsuarioProvider {
   final String _firebaseToken = 'AIzaSyA1u2PpcaiZnuTY0Bhyqp_vqd2QgDB9mgM';
-
+  final _prefs = new PreferenciasUsuario();
   Future<Map<String, dynamic>> login(String email, String password) async {
     final authData = {
       'email': email,
@@ -15,15 +16,15 @@ class UsuarioProvider {
       body: json.encode(authData),
     );
     //Recepcion de los datos
-    Map<String, dynamic> decodeResp = json.decode(resp.body);
+    Map<String, dynamic> decodedResp = json.decode(resp.body);
 
     //Ver que se recibe
-    print(decodeResp);
-    if (decodeResp.containsKey('idToken')) {
-      //TODO: Salvar el token en el storage
-      return {'ok': true, 'token': decodeResp['idToken']};
+    print(decodedResp);
+    if (decodedResp.containsKey('idToken')) {
+      _prefs.token = decodedResp['idToken'];
+      return {'ok': true, 'token': decodedResp['idToken']};
     } else {
-      return {'ok': false, 'mensaje': decodeResp['error']['message']};
+      return {'ok': false, 'mensaje': decodedResp['error']['message']};
     }
   }
 
@@ -40,15 +41,15 @@ class UsuarioProvider {
       body: json.encode(authData),
     );
     //Recepcion de los datos
-    Map<String, dynamic> decodeResp = json.decode(resp.body);
+    Map<String, dynamic> decodedResp = json.decode(resp.body);
 
     //Ver que se recibe
-    print(decodeResp);
-    if (decodeResp.containsKey('idToken')) {
-      //TODO: Salvar el token en el storage
-      return {'ok': true, 'token': decodeResp['idToken']};
+    print(decodedResp);
+    if (decodedResp.containsKey('idToken')) {
+      _prefs.token = decodedResp['idToken'];
+      return {'ok': true, 'token': decodedResp['idToken']};
     } else {
-      return {'ok': false, 'mensaje': decodeResp['error']['message']};
+      return {'ok': false, 'mensaje': decodedResp['error']['message']};
     }
   }
 }

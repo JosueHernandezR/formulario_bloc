@@ -150,8 +150,8 @@ class LoginPage extends StatelessWidget {
     // print('Email = ${bloc.email}');
     // print('Email = ${bloc.password}');
     // print('=====================');
-    // Navigator.pushReplacementNamed(context, 'home');
     usuarioProvider.login(bloc.email, bloc.password);
+    // Navigator.pushReplacementNamed(context, 'home');
   }
 
   Widget _crearFondo(context) {
