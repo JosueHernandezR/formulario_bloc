@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:formulario_bloc/src/models/model.dart';
-import 'package:formulario_bloc/src/providers/productos_provider.dart';
-import 'package:formulario_bloc/src/utils/utils.dart' as utils;
 import 'package:image_picker/image_picker.dart';
+
+import 'package:formulario_bloc/src/models/model.dart';
+//import 'package:formulario_bloc/src/providers/productos_provider.dart';
+import 'package:formulario_bloc/src/utils/utils.dart' as utils;
+import 'package:formulario_bloc/src/bloc/provider.dart';
 
 class ProductoPage extends StatefulWidget {
   @override
@@ -15,17 +17,19 @@ class _ProductoPageState extends State<ProductoPage> {
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final productoProvider = new ProductosProvider();
+  //final productoProvider = new ProductosProvider();
 
-  File foto;
-
+  ProductosBloc productosBloc;
   ProductModel producto = new ProductModel();
   //Cuando se crea el widget no se ha modificado nada
   //Se usará para evitar que se guarde muchas veces la información
   bool _guardando = false;
+  File foto;
 
   @override
   Widget build(BuildContext context) {
+    productosBloc = Provider.productosBloc(context);
+
     final size = MediaQuery.of(context).size;
     final ProductModel prodData = ModalRoute.of(context).settings.arguments;
     if (prodData != null) {
@@ -141,13 +145,13 @@ class _ProductoPageState extends State<ProductoPage> {
 
     //Subiendo foto al servidor
     if (foto != null) {
-      producto.fotoUrl = await productoProvider.subirImagen(foto);
+      producto.fotoUrl = await productosBloc.subirFoto(foto);
     }
 
     if (producto.id == null)
-      productoProvider.crearProducto(producto);
+      productosBloc.crearProducto(producto);
     else {
-      productoProvider.editarProducto(producto);
+      productosBloc.editarProducto(producto);
     }
     //setState(() {_guardando = false;});
     mostrarSnackbar('Registro guardado');

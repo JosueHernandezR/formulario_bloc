@@ -19,7 +19,7 @@ class ProductosBloc {
     _productosController.sink.add(productos);
   }
 
-  void agregarProducto(ProductModel producto) async {
+  void crearProducto(ProductModel producto) async {
     _cargandoController.sink.add(true);
     await _productosProvider.crearProducto(producto);
     _cargandoController.sink.add(false);

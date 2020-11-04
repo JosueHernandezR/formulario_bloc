@@ -45,8 +45,11 @@ class ProductosProvider {
 
     final List<ProductModel> productos = new List();
     if (decodedData == null) return [];
+    // Se puede editar para que el usuario sepa que hay que renovar el token
+    if (decodedData['error'] != null) return [];
+
     //Prueba
-    print(decodedData);
+    //print(decodedData);
 
     decodedData.forEach((id, prod) {
       final prodTemp = ProductModel.fromJson(prod);

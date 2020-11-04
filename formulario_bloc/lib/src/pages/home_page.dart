@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:formulario_bloc/src/bloc/provider.dart';
 import 'package:formulario_bloc/src/models/model.dart';
-import 'package:formulario_bloc/src/providers/productos_provider.dart';
+//import 'package:formulario_bloc/src/providers/productos_provider.dart';
 
 class HomePage extends StatefulWidget {
   //const HomePage({Key key}) : super(key: key);
@@ -11,17 +11,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final productosProvider = new ProductosProvider();
+  //final productosProvider = new ProductosProvider();
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
-
+    final productosBloc = Provider.productosBloc(context);
+    productosBloc.cargarProductos();
     return Scaffold(
       appBar: AppBar(
         title: Text('HomePage'),
       ),
-      body: _crearListado(),
+      body: _crearListado(productosBloc),
       floatingActionButton: _crearBoton(context),
     );
   }
@@ -30,22 +30,25 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton(
       child: Icon(Icons.add),
       backgroundColor: Colors.deepPurple,
-      onPressed: () => Navigator.pushNamed(context, 'producto').then((value) {
-        setState(() {});
-      }),
+      onPressed: () => Navigator.pushNamed(context, 'producto').then(
+        (value) {
+          setState(() {});
+        },
+      ),
     );
   }
 
-  Widget _crearListado() {
-    return FutureBuilder(
-      future: productosProvider.cargarProductos(),
+  Widget _crearListado(ProductosBloc productosBloc) {
+    return StreamBuilder(
+      stream: productosBloc.productosStream,
       builder:
           (BuildContext context, AsyncSnapshot<List<ProductModel>> snapshot) {
         if (snapshot.hasData) {
           final productos = snapshot.data;
           return ListView.builder(
             itemCount: productos.length,
-            itemBuilder: (context, i) => _crearItem(context, productos[i]),
+            itemBuilder: (context, i) =>
+                _crearItem(context, productosBloc, productos[i]),
           );
         } else {
           return Center(
@@ -56,15 +59,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _crearItem(BuildContext context, ProductModel producto) {
+  Widget _crearItem(BuildContext context, ProductosBloc productosBloc,
+      ProductModel producto) {
     return Dismissible(
       key: UniqueKey(),
       background: Container(
         color: Colors.red,
       ),
-      onDismissed: (direction) {
-        productosProvider.borrarProducto(producto.id);
-      },
+
+      onDismissed: (direccion) => productosBloc.borrarProducto(producto.id),
+      // onDismissed: (direction) {
+      //   // productosProvider.borrarProducto(producto.id);
+      // },
       child: Card(
         child: Column(
           children: <Widget>[
@@ -84,11 +90,9 @@ class _HomePageState extends State<HomePage> {
               subtitle: Text(producto.id),
               onTap: () =>
                   Navigator.pushNamed(context, 'producto', arguments: producto)
-                      .then(
-                (value) {
-                  setState(() {});
-                },
-              ),
+                      .then((value) {
+                setState(() {});
+              }),
             ),
           ],
         ),
